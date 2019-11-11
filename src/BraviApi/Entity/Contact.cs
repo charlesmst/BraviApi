@@ -7,8 +7,8 @@ namespace BraviApi.Entity
         public Guid Id { get; set; }
         public Guid PersonId { get; set; }
         public Person Person { get; set; }
-        public ICollection<ContactDto> Contacts { get; set; }
-
+        public ContactType Type { get; set; }
+        public string Value { get; set; }
 
     }
 }
