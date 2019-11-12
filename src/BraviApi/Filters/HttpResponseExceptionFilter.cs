@@ -49,6 +49,8 @@ namespace BraviApi.Filters
                     {
                         StatusCode = 500
                     };
+
+                    System.Diagnostics.Trace.TraceError("Filtered error: "+context.Exception.Message);
                     context.ExceptionHandled = true;
                 }
             }
