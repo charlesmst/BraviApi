@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace BraviApi.Exceptions
 {
-    public class ContactNotFoundException : AppException
+    public class PersonNotFoundException : AppException
     {
-
+        
     }
 }

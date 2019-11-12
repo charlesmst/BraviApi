@@ -15,6 +15,10 @@ namespace BraviApi.Dto
         public DateTime BirthDate { get; set; }
         public static PersonDto FromPerson(Person person)
         {
+            if (person == null)
+            {
+                return null;
+            }
             return new PersonDto()
             {
                 Id = person.Id,
