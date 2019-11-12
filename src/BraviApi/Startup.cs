@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using BraviApi.Filters;
 using BraviApi.Repository;
+using BraviApi.Service;
 
 namespace BraviApi
 {
@@ -43,6 +44,7 @@ namespace BraviApi
             );
 
             services.AddTransient<IPersonRepository, PersonRepository>();
+            services.AddTransient<IPersonService, PersonService>();
             services.AddCors();
             services.AddSwaggerDocument();
 
