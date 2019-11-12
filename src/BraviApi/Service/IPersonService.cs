@@ -5,16 +5,17 @@ using System.Threading.Tasks;
 using BraviApi.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using BraviApi.Dto;
 
-namespace BraviApi.Repository
+namespace BraviApi.Service
 {
-    public interface IPersonRepository
+    public interface IPersonService
     {
-        Task Add(Person data);
-        Task<Person> FindByNameAndBirthDate(string name, DateTime birthDate);
+
+        Task Add(PersonDto data);
         Task Delete(Guid id);
         Task<List<Person>> FindAll();
         Task<Person> FindById(Guid id);
-        Task Update(Person data);
+        Task Update(PersonDto data);
     }
 }

@@ -6,196 +6,146 @@ using BraviApi.Repository;
 using BraviApi.Entity;
 using System.Threading.Tasks;
 using BraviApi.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BraviApiTests.Repository
 {
     public class PersonRepositoryTests
     {
+        private List<Person> SeededPeople = new List<Person>(){
+            new Person()
+                {
+                    Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
+                    Name = "Charles Stein",
+                    BirthDate = Convert.ToDateTime("10/04/1995")
+                }
+        };
+        private async Task<DbContextOptions<BraviApiDbContext>> SeededDb(string dbName)
+        {
+            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
+                            .UseInMemoryDatabase(databaseName: dbName)
+                            .Options;
+
+            using (var context = new BraviApiDbContext(options))
+            {
+                await context.People.AddRangeAsync(SeededPeople);
+                await context.SaveChangesAsync();
+            }
+            return options;
+        }
+
         [Fact]
         public async Task ShouldAddPersonTest()
         {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldAddPersonTest")
-                .Options;
+            var options = await SeededDb("ShouldAddPersonTest");
+
 
             var person = new Person()
             {
-                Name = "Charles Stein",
+                Name = "John Johnson",
                 BirthDate = Convert.ToDateTime("10/04/1995")
             };
-
+            Guid id;
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
                 await repository.Add(person);
+                id = person.Id;
             }
 
             using (var context = new BraviApiDbContext(options))
             {
-                Assert.Equal(1, await context.People.CountAsync());
-                var dbPerson = await context.People.FirstAsync();
+                Assert.Equal(SeededPeople.Count + 1, await context.People.CountAsync());
+                var dbPerson = await context.People.FindAsync(id);
                 Assert.Equal(person.Name, dbPerson.Name);
                 Assert.Equal(person.BirthDate, dbPerson.BirthDate);
             }
         }
 
         [Fact]
-        public async Task ShouldFailWithAddExistingPersonTests()
+        public async Task ShouldUpdatePersonTest()
         {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldFailWithAddExistingPersonTests")
-                .Options;
+            var options = await SeededDb("ShouldUpdatePersonTest");
 
-            var person = new Person()
-            {
-                Name = "Charles Stein",
-                BirthDate = Convert.ToDateTime("10/04/1995")
-            };
-
-            using (var context = new BraviApiDbContext(options))
-            {
-                await context.People.AddAsync(person);
-                await context.SaveChangesAsync();
-            }
-
-            using (var context = new BraviApiDbContext(options))
-            {
-                var repository = new PersonRepository(context);
-                await Assert.ThrowsAsync<PersonAlreadyExistsException>(async () =>
-                {
-                    await repository.Add(new Person()
-                    {
-                        Name = "Charles Stein",
-                        BirthDate = Convert.ToDateTime("10/04/1995")
-                    });
-                });
-            }
-
-        }
-
-        [Fact]
-        public async Task ShouldUpdateSuccessfullyTests()
-        {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldUpdateSuccessfullyTests")
-                .Options;
-
-            var person = new Person()
-            {
-                Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
-                Name = "Charles Stein",
-                BirthDate = Convert.ToDateTime("10/04/1995")
-            };
-            using (var context = new BraviApiDbContext(options))
-            {
-                await context.People.AddAsync(person);
-                await context.SaveChangesAsync();
-            }
-
-            //Updates person normally
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
                 await repository.Update(new Person()
                 {
                     Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
-                    Name = "Charles Stein Updated",
+                    Name = "John Updated",
                     BirthDate = Convert.ToDateTime("10/04/1995")
                 });
             }
             using (var context = new BraviApiDbContext(options))
             {
-                Assert.Equal(1, await context.People.CountAsync());
+                Assert.Equal(SeededPeople.Count, await context.People.CountAsync());
                 var dbPerson = await context.People.FirstAsync();
-                Assert.Equal("Charles Stein Updated", dbPerson.Name);
+                Assert.Equal("John Updated", dbPerson.Name);
+                Assert.Equal(Convert.ToDateTime("10/04/1995"), dbPerson.BirthDate);
+            }
+        }
+
+        [Fact]
+        public async Task ShouldDeletePersonTest()
+        {
+            var options = await SeededDb("ShouldDeletePersonTest");
+
+            using (var context = new BraviApiDbContext(options))
+            {
+                var repository = new PersonRepository(context);
+                await repository.Delete(SeededPeople.First().Id);
+            }
+            using (var context = new BraviApiDbContext(options))
+            {
+                Assert.Equal(SeededPeople.Count - 1, await context.People.CountAsync());
             }
         }
 
 
         [Fact]
-        public async Task ShouldUpdateFailWhenNotFoundTests()
+        public async Task ShouldFindByIdPersonTest()
         {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldUpdateFailWhenNotFoundTests")
-                .Options;
-
-            var person = new Person()
-            {
-                Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
-                Name = "Charles Stein",
-                BirthDate = Convert.ToDateTime("10/04/1995")
-            };
-            using (var context = new BraviApiDbContext(options))
-            {
-                await context.People.AddAsync(person);
-                await context.SaveChangesAsync();
-            }
+            var options = await SeededDb("ShouldFindByIdPersonTest");
 
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
-                await Assert.ThrowsAsync<PersonNotFoundException>(async () => await repository.Update(
-                    new Person()
-                    {
-                        Id = Guid.Parse("1c26b3b4-d134-4948-98d3-8be687b0681b"),//Not Found Id
-                        Name = "Charles Stein Updated",
-                        BirthDate = Convert.ToDateTime("10/04/1995")
-                    }));
+                var foundPerson = await repository.FindById(SeededPeople.First().Id);
+                Assert.NotNull(foundPerson);
+                Assert.Equal(SeededPeople.First().Name, foundPerson.Name);
             }
         }
-        [Fact]
-        public async Task ShouldDeleteSuccessfullyTests()
-        {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldDeleteSuccessfullyTests")
-                .Options;
 
-            var person = new Person()
-            {
-                Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
-                Name = "Charles Stein",
-                BirthDate = Convert.ToDateTime("10/04/1995")
-            };
-            using (var context = new BraviApiDbContext(options))
-            {
-                await context.People.AddAsync(person);
-                await context.SaveChangesAsync();
-            }
+        [Fact]
+        public async Task ShouldFindAllPeopleTest()
+        {
+            var options = await SeededDb("ShouldFindAllPeopleTest");
 
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
-                await repository.Delete(Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"));
-            }
-            using (var context = new BraviApiDbContext(options))
-            {
-                Assert.Equal(0, await context.People.CountAsync());
+                var foundPeople = await repository.FindAll();
+                Assert.NotNull(foundPeople);
+                Assert.Equal(SeededPeople.Count, foundPeople.Count);
             }
         }
 
 
         [Fact]
-        public async Task ShouldFailDeleteNotFoundTests()
+        public async Task ShouldFindByNameAndBirthdatePeopleTest()
         {
-            var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldFailDeleteNotFoundTests")
-                .Options;
+            var options = await SeededDb("ShouldFindByNameAndBirthdatePeopleTest");
 
-            var person = new Person()
-            {
-                Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
-                Name = "Charles Stein",
-                BirthDate = Convert.ToDateTime("10/04/1995")
-            };
-            using (var context = new BraviApiDbContext(options))
-            {
-                await context.People.AddAsync(person);
-                await context.SaveChangesAsync();
-            }
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
-                await Assert.ThrowsAsync<PersonNotFoundException>(async () => await repository.Delete(Guid.Parse("1c26b3b4-d134-4948-98d3-8be687b0681b")));
+                var firstPerson = SeededPeople.First();
+                var foundPerson = await repository.FindByNameAndBirthDate(firstPerson.Name, firstPerson.BirthDate);
+                Assert.NotNull(foundPerson);
+                Assert.Equal(firstPerson.Name, foundPerson.Name);
+                Assert.Equal(firstPerson.BirthDate, foundPerson.BirthDate);
             }
         }
     }
