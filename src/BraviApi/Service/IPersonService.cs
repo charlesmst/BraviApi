@@ -12,10 +12,10 @@ namespace BraviApi.Service
     public interface IPersonService
     {
 
-        Task Add(PersonDto data);
+        Task<Person> Add(PersonDto data);
         Task Delete(Guid id);
-        Task<List<Person>> FindAll();
-        Task<Person> FindById(Guid id);
+        Task<List<PersonDto>> FindAll();
+        Task<PersonDto> FindById(Guid id);
         Task Update(PersonDto data);
     }
 }

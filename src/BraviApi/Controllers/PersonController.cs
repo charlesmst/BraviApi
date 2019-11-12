@@ -8,6 +8,8 @@ using BraviApi.Exceptions;
 using BraviApi.Repository;
 using Microsoft.AspNetCore.Mvc;
 using BraviApi.Filters;
+using BraviApi.Service;
+
 namespace BraviApi.Controllers
 {
     [Route("api/[controller]")]
@@ -15,77 +17,69 @@ namespace BraviApi.Controllers
 
     public class PersonController : ControllerBase
     {
-        public IPersonRepository Repository { get; }
+        public IPersonService Service { get; }
 
-        public PersonController(IPersonRepository repository)
+        public PersonController(IPersonService service)
         {
-            this.Repository = repository;
+            this.Service = service;
         }
         [HttpGet]
 
         public async Task<ActionResult<IEnumerable<PersonDto>>> Get()
         {
-            var data = await Repository.FindAll();
-            return Ok(
-                data.Select(x => new PersonDto()
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    BirthDate = x.BirthDate
-                }).ToList());
+            return Ok(await Service.FindAll());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonDto>> Get(Guid id)
         {
-            var entity = await Repository.FindById(id);
-            return Ok(new PersonDto()
+            if (!ModelState.IsValid)
             {
-                Id = entity.Id,
-                Name = entity.Name,
-                BirthDate = entity.BirthDate
-            });
+                return BadRequest(ModelState);
+            }
+            return Ok(await Service.FindById(id));
         }
 
         [HttpPost]
         public async Task<ActionResult<CrudOperationDto>> Post([FromBody] PersonDto value)
         {
-            var entity = new Person()
+            if (!ModelState.IsValid)
             {
-                Name = value.Name,
-                BirthDate = value.BirthDate
-            };
+                return BadRequest(ModelState);
+            }
+            var entity = await Service.Add(value);
 
-
-            await Repository.Add(entity);
             return Ok(new CrudOperationDto()
             {
                 Success = true,
                 Id = entity.Id
             });
-
-
-
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<CrudOperationDto>> Put(Guid id, [FromBody] PersonDto value)
         {
-            var entity = await Repository.FindById(id);
-            entity.Name = value.Name;
-            entity.BirthDate = value.BirthDate;
-            await Repository.Update(entity);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await Service.Update(value);
             return Ok(new CrudOperationDto()
             {
                 Success = true,
-                Id = entity.Id
+                Id = value.Id
             });
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<CrudOperationDto>>  Delete(Guid id)
+        public async Task<ActionResult<CrudOperationDto>> Delete(Guid id)
         {
-            await Repository.Delete(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            await Service.Delete(id);
             return Ok(new CrudOperationDto()
             {
                 Success = true,

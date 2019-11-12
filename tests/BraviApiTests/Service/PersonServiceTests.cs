@@ -12,7 +12,7 @@ using Moq;
 using BraviApi.Dto;
 using BraviApi.Service;
 
-namespace BraviApiTests.Repository
+namespace BraviApiTests.Service
 {
     public class PersonServiceTests
     {
@@ -153,13 +153,12 @@ namespace BraviApiTests.Repository
                 BirthDate = personDto.BirthDate
             });
             repository
-                           .Setup(x => x.FindById(personDto.Id))
-                           .Returns(returningPerson);
+                .Setup(x => x.FindById(personDto.Id))
+                .Returns(returningPerson);
             var service = new PersonService(repository.Object);
             await service.Delete(personDto.Id);
             repository
-                .Verify(x => x.Delete(personDto.Id), Times.Once());
-
+                .Verify(x => x.Delete(It.Is<Person>(y => y.Id == personDto.Id)), Times.Once());
         }
         [Fact]
         public async Task ShouldDeleteThrowNotFoundPersonTest()
@@ -182,25 +181,27 @@ namespace BraviApiTests.Repository
         public async Task ShouldCallFindAllTest()
         {
             var repository = new Mock<IPersonRepository>();
-
+            repository
+                .Setup(x => x.FindAll())
+                .Returns(Task.FromResult(new List<Person>()));
             var service = new PersonService(repository.Object);
             await service.FindAll();
             repository
                 .Verify(x => x.FindAll(), Times.Once());
-
         }
 
         [Fact]
         public async Task ShouldCallFindByIdTest()
         {
-            var repository = new Mock<IPersonRepository>();
-
             var expectedId = Guid.NewGuid();
+            var repository = new Mock<IPersonRepository>();
+            repository
+                .Setup(x => x.FindById(expectedId))
+                .Returns(Task.FromResult<Person>(new Person()));
             var service = new PersonService(repository.Object);
             await service.FindById(expectedId);
             repository
                 .Verify(x => x.FindById(expectedId), Times.Once());
-
         }
     }
 }

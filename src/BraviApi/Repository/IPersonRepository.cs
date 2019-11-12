@@ -12,7 +12,7 @@ namespace BraviApi.Repository
     {
         Task Add(Person data);
         Task<Person> FindByNameAndBirthDate(string name, DateTime birthDate);
-        Task Delete(Guid id);
+        Task Delete(Person Entity);
         Task<List<Person>> FindAll();
         Task<Person> FindById(Guid id);
         Task Update(Person data);

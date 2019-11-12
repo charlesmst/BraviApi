@@ -19,18 +19,20 @@ namespace BraviApi.Service
             this.PersonRepository = personRepository;
         }
 
-        public async Task Add(PersonDto data)
+        public async Task<Person> Add(PersonDto data)
         {
 
             if (await PersonRepository.FindByNameAndBirthDate(data.Name, data.BirthDate) != null)
             {
                 throw new PersonAlreadyExistsException();
             }
-            await PersonRepository.Add(new Person()
+            var newPerson = new Person()
             {
                 Name = data.Name,
                 BirthDate = data.BirthDate,
-            });
+            };
+            await PersonRepository.Add(newPerson);
+            return newPerson;
         }
         public async Task Update(PersonDto data)
         {
@@ -51,15 +53,19 @@ namespace BraviApi.Service
             {
                 throw new PersonNotFoundException();
             }
-            await PersonRepository.Delete(id);
+            await PersonRepository.Delete(originalPerson);
         }
-        public async Task<List<Person>> FindAll()
+        public async Task<List<PersonDto>> FindAll()
         {
-            return await PersonRepository.FindAll();
+            return (await PersonRepository.FindAll())
+                .Select(x => PersonDto.FromPerson(x))
+                .ToList();
         }
-        public async Task<Person> FindById(Guid id)
+        public async Task<PersonDto> FindById(Guid id)
         {
-            return await PersonRepository.FindById(id);
+            var entity = await PersonRepository.FindById(id);
+
+            return PersonDto.FromPerson(entity);
         }
     }
 }

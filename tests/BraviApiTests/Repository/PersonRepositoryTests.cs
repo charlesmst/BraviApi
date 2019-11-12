@@ -95,7 +95,7 @@ namespace BraviApiTests.Repository
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
-                await repository.Delete(SeededPeople.First().Id);
+                await repository.Delete(SeededPeople.First());
             }
             using (var context = new BraviApiDbContext(options))
             {

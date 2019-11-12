@@ -20,34 +20,17 @@ namespace BraviApi.Repository
         public async Task Add(Person data)
         {
             data.Id = Guid.NewGuid();
-
-            if (await DbContext.People.Where(x => x.Name == data.Name && x.BirthDate == data.BirthDate).AnyAsync())
-            {
-                throw new PersonAlreadyExistsException();
-            }
             await DbContext.People.AddAsync(data);
             await DbContext.SaveChangesAsync();
         }
         public async Task Update(Person data)
         {
-            var originalPerson = await DbContext.People.FindAsync(data.Id);
-            if (originalPerson == null)
-            {
-                throw new PersonNotFoundException();
-            }
-            originalPerson.Name = data.Name;
-            originalPerson.BirthDate = data.BirthDate;
-
+            DbContext.Entry(data).State = EntityState.Modified;
             await DbContext.SaveChangesAsync();
         }
-        public async Task Delete(Guid id)
+        public async Task Delete(Person person)
         {
-            var originalPerson = await DbContext.People.FindAsync(id);
-            if (originalPerson == null)
-            {
-                throw new PersonNotFoundException();
-            }
-            DbContext.Entry(originalPerson).State = EntityState.Deleted;
+            DbContext.Entry(person).State = EntityState.Deleted;
             await DbContext.SaveChangesAsync();
         }
         public async Task<List<Person>> FindAll()
