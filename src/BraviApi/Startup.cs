@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using BraviApi.Filters;
+using BraviApi.Repository;
 
 namespace BraviApi
 {
@@ -28,7 +30,10 @@ namespace BraviApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc((options) =>
+            {
+                options.Filters.Add(typeof(HttpResponseExceptionFilter));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             var connection = Configuration.GetConnectionString("App");
 
@@ -36,7 +41,10 @@ namespace BraviApi
               options
               .UseSqlServer(connection)
             );
+
+            services.AddTransient<IPersonRepository, PersonRepository>();
             services.AddCors();
+            services.AddSwaggerDocument();
 
         }
 
@@ -55,6 +63,8 @@ namespace BraviApi
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
         }
     }
 }
