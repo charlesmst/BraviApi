@@ -12,10 +12,10 @@ namespace BraviApiTests.Repository
     public class PersonRepositoryTests
     {
         [Fact]
-        public async Task ShouldAddNormallyTest()
+        public async Task ShouldAddPersonTest()
         {
             var options = new DbContextOptionsBuilder<BraviApiDbContext>()
-                .UseInMemoryDatabase(databaseName: "ShouldAddNormallyTest")
+                .UseInMemoryDatabase(databaseName: "ShouldAddPersonTest")
                 .Options;
 
             var person = new Person()
