@@ -35,7 +35,7 @@ namespace BraviApi.Filters
                         Error = exception.Message
                     })
                     {
-                        StatusCode = 500
+                        StatusCode = exception.StatusCode
                     };
                     context.ExceptionHandled = true;
                 }
@@ -50,7 +50,7 @@ namespace BraviApi.Filters
                         StatusCode = 500
                     };
 
-                    System.Diagnostics.Trace.TraceError("Filtered error: "+context.Exception.Message);
+                    System.Diagnostics.Trace.TraceError("Filtered error: " + context.Exception.Message);
                     context.ExceptionHandled = true;
                 }
             }

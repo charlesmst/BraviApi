@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 
 namespace BraviApi.Exceptions
 {
-    public class PersonNotFoundException : AppException
+    public class ContactInvalidValueException : AppException
     {
-        public PersonNotFoundException() : base("Person not found")
+        public ContactInvalidValueException() : base("Invalid value for contact")
         {
-            StatusCode = 404;
+
         }
+
     }
 }

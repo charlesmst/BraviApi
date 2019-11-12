@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using BraviApi.Repository;
 using BraviApi.Dto;
+using System.ComponentModel.DataAnnotations;
 
 namespace BraviApi.Service
 {
@@ -19,8 +20,29 @@ namespace BraviApi.Service
             this.ContactRepository = ContactRepository;
         }
 
+        public virtual void ValidateContact(ContactDto contact)
+        {
+            switch (contact.Type)
+            {
+                case ContactType.Email:
+                    if (!new EmailAddressAttribute().IsValid(contact.Value))
+                    {
+                        throw new ContactInvalidValueException();
+                    }
+                    break;
+                case ContactType.Phone:
+                case ContactType.Whatsapp:
+                    if (!new PhoneAttribute().IsValid(contact.Value))
+                    {
+                        throw new ContactInvalidValueException();
+                    }
+                    break;
+            }
+
+        }
         public async Task<Contact> Add(ContactDto data)
         {
+            ValidateContact(data);
             var newContact = new Contact()
             {
                 PersonId = data.PersonId,
@@ -32,6 +54,7 @@ namespace BraviApi.Service
         }
         public async Task Update(ContactDto data)
         {
+            ValidateContact(data);
             var existing = await ContactRepository.FindById(data.Id);
             existing.Type = data.Type;
             existing.Value = data.Value;

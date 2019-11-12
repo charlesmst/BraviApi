@@ -45,6 +45,9 @@ namespace BraviApi
 
             services.AddTransient<IPersonRepository, PersonRepository>();
             services.AddTransient<IPersonService, PersonService>();
+
+            services.AddTransient<IContactRepository, ContactRepository>();
+            services.AddTransient<IContactService, ContactService>();
             services.AddCors();
             services.AddSwaggerDocument();
 

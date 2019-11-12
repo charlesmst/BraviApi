@@ -21,7 +21,7 @@ namespace BraviApiTests.Service
         public async Task ShouldCallAddContactTest()
         {
             var repository = new Mock<IContactRepository>();
-            var ContactDto = new ContactDto()
+            var contactDto = new ContactDto()
             {
                 PersonId = Guid.NewGuid(),
                 Type = ContactType.Email,
@@ -29,34 +29,51 @@ namespace BraviApiTests.Service
             };
 
             var service = new ContactService(repository.Object);
-            await service.Add(ContactDto);
+            await service.Add(contactDto);
             repository
-                .Verify(x => x.Add(It.Is<Contact>(y => y.PersonId == ContactDto.PersonId && y.Type == ContactDto.Type && y.Value == ContactDto.Value)), Times.Once());
+                .Verify(x => x.Add(It.Is<Contact>(y => y.PersonId == contactDto.PersonId && y.Type == contactDto.Type && y.Value == contactDto.Value)), Times.Once());
+
+        }
+        [Fact]
+        public async Task ShouldCallValidateOnAddTest()
+        {
+            var contactDto = new ContactDto()
+            {
+                PersonId = Guid.NewGuid(),
+                Type = ContactType.Email,
+                Value = "charles.mst@gmail.com"
+            };
+
+            var repository = new Mock<IContactRepository>();
+            var mockService = new Mock<ContactService>(repository.Object);
+
+            mockService.CallBase = true;
+            await mockService.Object.Add(contactDto);
+
+            mockService.Verify(x => x.ValidateContact(It.IsAny<ContactDto>()), Times.Once());
 
         }
 
-        // [Fact]
-        // public async Task ShouldAddThrowErrorWhenContactExistsTest()
-        // {
-        //     var repository = new Mock<IContactRepository>();
-        //     var ContactDto = new ContactDto()
-        //     {
-        //         Name = "Charles",
-        //         BirthDate = Convert.ToDateTime("10/04/1995")
-        //     };
-        //     repository
-        //         .Setup(x => x.FindByNameAndBirthDate(ContactDto.Name, ContactDto.BirthDate))
-        //         .Returns(Task.FromResult(new Contact()
-        //         {
-        //             Id = Guid.NewGuid(),
-        //             Name = ContactDto.Name,
-        //             BirthDate = ContactDto.BirthDate
-        //         }));
-        //     var service = new ContactService(repository.Object);
-        //     await Assert.ThrowsAsync<ContactAlreadyExistsException>(async () => await service.Add(ContactDto));
+        [Fact]
+        public async Task ShouldCallValidateOnUpdateTest()
+        {
+            var contactDto = new ContactDto()
+            {
+                PersonId = Guid.NewGuid(),
+                Type = ContactType.Email,
+                Value = "charles.mst@gmail.com"
+            };
 
-        // }
+            var repository = new Mock<IContactRepository>();
+            repository.Setup(x => x.FindById(contactDto.Id)).ReturnsAsync(new Contact() { Id = contactDto.Id });
+            var mockService = new Mock<ContactService>(repository.Object);
 
+            mockService.CallBase = true;
+            await mockService.Object.Update(contactDto);
+
+            mockService.Verify(x => x.ValidateContact(It.IsAny<ContactDto>()), Times.Once());
+
+        }
 
         [Fact]
         public async Task ShouldCallUpdateContactTest()
@@ -86,58 +103,6 @@ namespace BraviApiTests.Service
 
         }
 
-        // [Fact]
-        // public async Task ShouldUpdateThrowErrorWhenContactExistsTest()
-        // {
-        //     var repository = new Mock<IContactRepository>();
-        //     var ContactDto = new ContactDto()
-        //     {
-        //         Id = Guid.NewGuid(),
-        //         Name = "Charles",
-        //         BirthDate = Convert.ToDateTime("10/04/1995")
-        //     };
-        //     repository
-        //         .Setup(x => x.FindByNameAndBirthDate(ContactDto.Name, ContactDto.BirthDate))
-        //         .Returns(Task.FromResult(new Contact()
-        //         {
-        //             Id = Guid.NewGuid(),
-        //             Name = ContactDto.Name,
-        //             BirthDate = ContactDto.BirthDate
-        //         }));
-        //     var service = new ContactService(repository.Object);
-        //     await Assert.ThrowsAsync<ContactAlreadyExistsException>(async () => await service.Update(ContactDto));
-
-        // }
-        // [Fact]
-        // public async Task ShouldUpdateNotThrowErrorWhenContactExistsWithSameIdTest()
-        // {
-        //     var repository = new Mock<IContactRepository>();
-        //     var ContactDto = new ContactDto()
-        //     {
-        //         Id = Guid.NewGuid(),
-        //         Name = "Charles",
-        //         BirthDate = Convert.ToDateTime("10/04/1995")
-        //     };
-        //     var returningContact = new Contact()
-        //     {
-        //         Id = ContactDto.Id,//same id as updating
-        //         Name = ContactDto.Name,
-        //         BirthDate = ContactDto.BirthDate
-        //     };
-        //     repository
-        //         .Setup(x => x.FindById(ContactDto.Id))
-        //         .Returns(Task.FromResult(returningContact));
-
-
-        //     repository
-        //         .Setup(x => x.FindByNameAndBirthDate(ContactDto.Name, ContactDto.BirthDate))
-        //         .Returns(Task.FromResult(returningContact));
-
-        //     var service = new ContactService(repository.Object);
-        //     await service.Update(ContactDto);
-        //     repository
-        //         .Verify(x => x.Update(It.Is<Contact>(y => y.Id == ContactDto.Id && y.Name == ContactDto.Name && y.BirthDate == ContactDto.BirthDate)), Times.Once());
-        // }
 
         [Fact]
         public async Task ShouldCallDeleteContactTest()

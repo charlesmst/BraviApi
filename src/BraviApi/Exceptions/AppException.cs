@@ -8,6 +8,7 @@ namespace BraviApi.Exceptions
 {
     public class AppException : Exception
     {
+        public virtual int StatusCode { get; set; } = 500;
         public AppException()
         {
         }

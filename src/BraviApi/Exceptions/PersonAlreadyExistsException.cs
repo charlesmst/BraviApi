@@ -7,6 +7,9 @@ namespace BraviApi.Exceptions
 {
     public class PersonAlreadyExistsException : AppException
     {
-        
+        public PersonAlreadyExistsException() : base("Person already exist")
+        {
+
+        }
     }
 }
