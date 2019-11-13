@@ -42,9 +42,9 @@ namespace BraviApi.Repository
             return await DbContext.People.FindAsync(id);
         }
 
-        public async Task<Person> FindByNameAndBirthDate(string name, DateTime birthDate)
+        public async Task<Person> FindByName(string name)
         {
-            return await DbContext.People.Where(x => x.Name == name && x.BirthDate == birthDate).FirstOrDefaultAsync();
+            return await DbContext.People.Where(x => x.Name == name).FirstOrDefaultAsync();
         }
     }
 }

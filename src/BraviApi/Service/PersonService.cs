@@ -22,28 +22,26 @@ namespace BraviApi.Service
         public async Task<Person> Add(PersonDto data)
         {
 
-            if (await PersonRepository.FindByNameAndBirthDate(data.Name, data.BirthDate) != null)
+            if (await PersonRepository.FindByName(data.Name) != null)
             {
                 throw new PersonAlreadyExistsException();
             }
             var newPerson = new Person()
             {
                 Name = data.Name,
-                BirthDate = data.BirthDate,
             };
             await PersonRepository.Add(newPerson);
             return newPerson;
         }
         public async Task Update(PersonDto data)
         {
-            var existingPerson = await PersonRepository.FindByNameAndBirthDate(data.Name, data.BirthDate);
+            var existingPerson = await PersonRepository.FindByName(data.Name);
             if (existingPerson != null && existingPerson.Id != data.Id)
             {
                 throw new PersonAlreadyExistsException();
             }
             var existing = await PersonRepository.FindById(data.Id);
             existing.Name = data.Name;
-            existing.BirthDate = data.BirthDate;
             await PersonRepository.Update(existing);
         }
         public async Task Delete(Guid id)

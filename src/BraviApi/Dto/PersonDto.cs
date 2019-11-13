@@ -11,8 +11,6 @@ namespace BraviApi.Dto
         [Required]
         [MaxLength(500)]
         public string Name { get; set; }
-        [Required]
-        public DateTime BirthDate { get; set; }
         public static PersonDto FromPerson(Person person)
         {
             if (person == null)
@@ -23,7 +21,6 @@ namespace BraviApi.Dto
             {
                 Id = person.Id,
                 Name = person.Name,
-                BirthDate = person.BirthDate
             };
         }
     }

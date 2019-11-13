@@ -19,14 +19,12 @@ namespace BraviApiTests.Repository
 
                     Id = Guid.Parse("770ba6b5-bbb3-43f3-9da6-eb834c702273"),
                     Name="Charles Stein",
-                    BirthDate=Convert.ToDateTime("10/04/1995")
                 },
                    new Person()
                 {
 
                     Id = Guid.Parse("2fc4d2c4-3749-485f-8373-2c0d57bcb000"),
                     Name="person2",
-                    BirthDate=Convert.ToDateTime("10/04/1995")
                 },
         };
         private List<Contact> SeededContacts = new List<Contact>(){

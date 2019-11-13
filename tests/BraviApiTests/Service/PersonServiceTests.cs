@@ -24,13 +24,12 @@ namespace BraviApiTests.Service
             var personDto = new PersonDto()
             {
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
 
             var service = new PersonService(repository.Object);
             await service.Add(personDto);
             repository
-                .Verify(x => x.Add(It.Is<Person>(y => y.Name == personDto.Name && y.BirthDate == personDto.BirthDate)), Times.Once());
+                .Verify(x => x.Add(It.Is<Person>(y => y.Name == personDto.Name )), Times.Once());
 
         }
 
@@ -40,16 +39,14 @@ namespace BraviApiTests.Service
             var repository = new Mock<IPersonRepository>();
             var personDto = new PersonDto()
             {
-                Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
+                Name = "Charles"
             };
             repository
-                .Setup(x => x.FindByNameAndBirthDate(personDto.Name, personDto.BirthDate))
+                .Setup(x => x.FindByName(personDto.Name))
                 .Returns(Task.FromResult(new Person()
                 {
                     Id = Guid.NewGuid(),
                     Name = personDto.Name,
-                    BirthDate = personDto.BirthDate
                 }));
             var service = new PersonService(repository.Object);
             await Assert.ThrowsAsync<PersonAlreadyExistsException>(async () => await service.Add(personDto));
@@ -65,13 +62,11 @@ namespace BraviApiTests.Service
             {
                 Id = Guid.NewGuid(),
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             var returningPerson = Task.FromResult(new Person()
             {
                 Id = personDto.Id,
                 Name = personDto.Name,
-                BirthDate = personDto.BirthDate
             });
             repository
                 .Setup(x => x.FindById(personDto.Id))
@@ -79,7 +74,7 @@ namespace BraviApiTests.Service
             var service = new PersonService(repository.Object);
             await service.Update(personDto);
             repository
-                .Verify(x => x.Update(It.Is<Person>(y => y.Id == personDto.Id && y.Name == personDto.Name && y.BirthDate == personDto.BirthDate)), Times.Once());
+                .Verify(x => x.Update(It.Is<Person>(y => y.Id == personDto.Id && y.Name == personDto.Name)), Times.Once());
 
         }
 
@@ -91,15 +86,13 @@ namespace BraviApiTests.Service
             {
                 Id = Guid.NewGuid(),
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             repository
-                .Setup(x => x.FindByNameAndBirthDate(personDto.Name, personDto.BirthDate))
+                .Setup(x => x.FindByName(personDto.Name))
                 .Returns(Task.FromResult(new Person()
                 {
                     Id = Guid.NewGuid(),
                     Name = personDto.Name,
-                    BirthDate = personDto.BirthDate
                 }));
             var service = new PersonService(repository.Object);
             await Assert.ThrowsAsync<PersonAlreadyExistsException>(async () => await service.Update(personDto));
@@ -113,13 +106,11 @@ namespace BraviApiTests.Service
             {
                 Id = Guid.NewGuid(),
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             var returningPerson = new Person()
             {
                 Id = personDto.Id,//same id as updating
                 Name = personDto.Name,
-                BirthDate = personDto.BirthDate
             };
             repository
                 .Setup(x => x.FindById(personDto.Id))
@@ -127,13 +118,13 @@ namespace BraviApiTests.Service
 
 
             repository
-                .Setup(x => x.FindByNameAndBirthDate(personDto.Name, personDto.BirthDate))
+                .Setup(x => x.FindByName(personDto.Name))
                 .Returns(Task.FromResult(returningPerson));
 
             var service = new PersonService(repository.Object);
             await service.Update(personDto);
             repository
-                .Verify(x => x.Update(It.Is<Person>(y => y.Id == personDto.Id && y.Name == personDto.Name && y.BirthDate == personDto.BirthDate)), Times.Once());
+                .Verify(x => x.Update(It.Is<Person>(y => y.Id == personDto.Id && y.Name == personDto.Name)), Times.Once());
         }
 
         [Fact]
@@ -144,13 +135,11 @@ namespace BraviApiTests.Service
             {
                 Id = Guid.NewGuid(),
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             var returningPerson = Task.FromResult(new Person()
             {
                 Id = personDto.Id,
                 Name = personDto.Name,
-                BirthDate = personDto.BirthDate
             });
             repository
                 .Setup(x => x.FindById(personDto.Id))
@@ -168,7 +157,6 @@ namespace BraviApiTests.Service
             {
                 Id = Guid.NewGuid(),
                 Name = "Charles",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             repository
                 .Setup(x => x.FindById(personDto.Id))

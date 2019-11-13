@@ -18,7 +18,6 @@ namespace BraviApiTests.Repository
                 {
                     Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
                     Name = "Charles Stein",
-                    BirthDate = Convert.ToDateTime("10/04/1995")
                 }
         };
         private async Task<DbContextOptions<BraviApiDbContext>> SeededDb(string dbName)
@@ -44,7 +43,6 @@ namespace BraviApiTests.Repository
             var person = new Person()
             {
                 Name = "John Johnson",
-                BirthDate = Convert.ToDateTime("10/04/1995")
             };
             Guid id;
             using (var context = new BraviApiDbContext(options))
@@ -59,7 +57,6 @@ namespace BraviApiTests.Repository
                 Assert.Equal(SeededPeople.Count + 1, await context.People.CountAsync());
                 var dbPerson = await context.People.FindAsync(id);
                 Assert.Equal(person.Name, dbPerson.Name);
-                Assert.Equal(person.BirthDate, dbPerson.BirthDate);
             }
         }
 
@@ -75,7 +72,6 @@ namespace BraviApiTests.Repository
                 {
                     Id = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
                     Name = "John Updated",
-                    BirthDate = Convert.ToDateTime("10/04/1995")
                 });
             }
             using (var context = new BraviApiDbContext(options))
@@ -83,7 +79,6 @@ namespace BraviApiTests.Repository
                 Assert.Equal(SeededPeople.Count, await context.People.CountAsync());
                 var dbPerson = await context.People.FirstAsync();
                 Assert.Equal("John Updated", dbPerson.Name);
-                Assert.Equal(Convert.ToDateTime("10/04/1995"), dbPerson.BirthDate);
             }
         }
 
@@ -134,18 +129,17 @@ namespace BraviApiTests.Repository
 
 
         [Fact]
-        public async Task ShouldFindByNameAndBirthdatePeopleTest()
+        public async Task ShouldFindByNamePeopleTest()
         {
-            var options = await SeededDb("ShouldFindByNameAndBirthdatePeopleTest");
+            var options = await SeededDb("ShouldFindByNamePeopleTest");
 
             using (var context = new BraviApiDbContext(options))
             {
                 var repository = new PersonRepository(context);
                 var firstPerson = SeededPeople.First();
-                var foundPerson = await repository.FindByNameAndBirthDate(firstPerson.Name, firstPerson.BirthDate);
+                var foundPerson = await repository.FindByName(firstPerson.Name);
                 Assert.NotNull(foundPerson);
                 Assert.Equal(firstPerson.Name, foundPerson.Name);
-                Assert.Equal(firstPerson.BirthDate, foundPerson.BirthDate);
             }
         }
     }

@@ -55,8 +55,7 @@ namespace BraviApiTests.Controllers
             var service = new Mock<IPersonService>();
             var result = new PersonDto()
             {
-                Name = "John",
-                BirthDate = Convert.ToDateTime("10/10/2000")
+                Name = "John"
             };
             var newId = Guid.NewGuid();
             service
@@ -85,8 +84,7 @@ namespace BraviApiTests.Controllers
             var result = new PersonDto()
             {
                 Id = newId,
-                Name = "John",
-                BirthDate = Convert.ToDateTime("10/10/2000")
+                Name = "John"
             };
             service
                 .Setup(x => x.Update(result))
