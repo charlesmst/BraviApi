@@ -48,7 +48,13 @@ namespace BraviApi
 
             services.AddTransient<IContactRepository, ContactRepository>();
             services.AddTransient<IContactService, ContactService>();
-            services.AddCors();
+
+            //Only allow front end app to connect to api via browser
+            var siteUrl = Configuration.GetValue("SiteUrl","http://localhost:3000");
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder => builder.WithOrigins(siteUrl));
+            });
             services.AddSwaggerDocument();
 
         }
@@ -65,7 +71,7 @@ namespace BraviApi
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseCors();
             app.UseHttpsRedirection();
             app.UseMvc();
             app.UseOpenApi();
