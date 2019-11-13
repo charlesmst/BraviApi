@@ -66,7 +66,7 @@ namespace BraviApi.Controllers
                 return BadRequest(ModelState);
             }
             value.PersonId = personId;
-
+            value.Id = id;
             await Service.Update(value);
             return Ok(new CrudOperationDto()
             {
