@@ -53,7 +53,9 @@ namespace BraviApi
             var siteUrl = Configuration.GetValue("SiteUrl","http://localhost:3000");
             services.AddCors(options =>
             {
-                options.AddDefaultPolicy(builder => builder.WithOrigins(siteUrl));
+                options.AddDefaultPolicy(builder => builder.WithOrigins(siteUrl)
+                .AllowAnyMethod()
+                .AllowAnyHeader());
             });
             services.AddSwaggerDocument();
 
