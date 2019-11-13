@@ -11,7 +11,7 @@ namespace BraviApi.Repository
     public interface IPersonRepository
     {
         Task Add(Person data);
-        Task<Person> FindByNameAndBirthDate(string name, DateTime birthDate);
+        Task<Person> FindByName(string name);
         Task Delete(Person entity);
         Task<List<Person>> FindAll();
         Task<Person> FindById(Guid id);
