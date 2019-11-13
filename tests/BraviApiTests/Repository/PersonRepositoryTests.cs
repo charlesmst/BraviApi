@@ -29,6 +29,13 @@ namespace BraviApiTests.Repository
             using (var context = new BraviApiDbContext(options))
             {
                 await context.People.AddRangeAsync(SeededPeople);
+                await context.Contacts.AddAsync(new Contact()
+                {
+                    Id = Guid.Parse("770ba6b5-bbb3-43f3-9da6-eb834c702273"),
+                    PersonId = Guid.Parse("20a2b035-d2d2-4a04-ab62-9e62538fab19"),
+                    Type = ContactType.Email,
+                    Value = "charles.mst@gmail.com"
+                });
                 await context.SaveChangesAsync();
             }
             return options;
@@ -124,6 +131,22 @@ namespace BraviApiTests.Repository
                 var foundPeople = await repository.FindAll();
                 Assert.NotNull(foundPeople);
                 Assert.Equal(SeededPeople.Count, foundPeople.Count);
+            }
+        }
+
+
+        [Fact]
+        public async Task ShouldFindAllIncludeContactsTest()
+        {
+            var options = await SeededDb("ShouldFindAllIncludeContactsTest");
+
+            using (var context = new BraviApiDbContext(options))
+            {
+                var repository = new PersonRepository(context);
+                var foundPeople = await repository.FindAll();
+                Assert.NotNull(foundPeople);
+                Assert.NotNull(foundPeople.First().Contacts);
+                Assert.Equal(1, foundPeople.First().Contacts.Count);
             }
         }
 

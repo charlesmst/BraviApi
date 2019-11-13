@@ -29,7 +29,7 @@ namespace BraviApiTests.Service
             var service = new PersonService(repository.Object);
             await service.Add(personDto);
             repository
-                .Verify(x => x.Add(It.Is<Person>(y => y.Name == personDto.Name )), Times.Once());
+                .Verify(x => x.Add(It.Is<Person>(y => y.Name == personDto.Name)), Times.Once());
 
         }
 
@@ -176,6 +176,31 @@ namespace BraviApiTests.Service
             await service.FindAll();
             repository
                 .Verify(x => x.FindAll(), Times.Once());
+        }
+
+        [Fact]
+        public async Task ShouldFindAllIncludeContactsTest()
+        {
+            var repository = new Mock<IPersonRepository>();
+            repository
+                .Setup(x => x.FindAll())
+                .Returns(Task.FromResult(new List<Person>(){
+                    new Person()
+                {
+                    Id = Guid.NewGuid(),
+                    Contacts = new List<Contact>()
+                    {
+                        new Contact(){
+                            Id=Guid.NewGuid()
+                        }
+                    }
+                }}));
+            var service = new PersonService(repository.Object);
+            var result = await service.FindAll();
+            Assert.Equal(1, result.Count);
+            Assert.NotNull(result.First().Contacts);
+            Assert.Equal(1, result.First().Contacts.Count);
+
         }
 
         [Fact]
