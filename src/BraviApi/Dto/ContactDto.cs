@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using BraviApi.Entity;
 
 namespace BraviApi.Dto
@@ -8,6 +9,8 @@ namespace BraviApi.Dto
         public Guid Id { get; set; }
         public Guid PersonId { get; set; }
         public ContactType Type { get; set; }
+        [Required]
+        [MaxLength(100)]
         public string Value { get; set; }
 
         internal static ContactDto FromContact(Contact entity)
