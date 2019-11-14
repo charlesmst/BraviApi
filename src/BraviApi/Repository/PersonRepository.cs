@@ -35,7 +35,9 @@ namespace BraviApi.Repository
         }
         public async Task<List<Person>> FindAll()
         {
-            return await DbContext.People.ToListAsync();
+            return await DbContext.People
+                .Include(x => x.Contacts)
+                .ToListAsync();
         }
         public async Task<Person> FindById(Guid id)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using BraviApi.Entity;
 
 namespace BraviApi.Dto
@@ -11,6 +12,7 @@ namespace BraviApi.Dto
         [Required]
         [MaxLength(500)]
         public string Name { get; set; }
+        public IList<ContactDto> Contacts { get; set; }
         public static PersonDto FromPerson(Person person)
         {
             if (person == null)
@@ -21,6 +23,7 @@ namespace BraviApi.Dto
             {
                 Id = person.Id,
                 Name = person.Name,
+                Contacts = person.Contacts?.Select(x => ContactDto.FromContact(x)).ToList()
             };
         }
     }
